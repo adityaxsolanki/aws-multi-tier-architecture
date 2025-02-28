@@ -1,0 +1,24 @@
+---
+- name: Configure EC2 Instance
+  hosts: web
+  become: yes
+  tasks:
+
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+
+    - name: Start Nginx
+      service:
+        name: nginx
+        state: started
+
+- name: Configure DB
+  hosts: db
+  become: yes
+  tasks:
+    - name: Install MySQL Client
+      apt:
+        name: mysql-client
+        state: present
