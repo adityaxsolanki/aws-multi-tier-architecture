@@ -17,7 +17,7 @@ pipeline {
       steps {
         echo "Building Docker Image 🚀"
         sh '''
-          docker build -t $DOCKER_IMAGE -f aws-multi-tier-architecture/Dockerfile .
+          docker build -t $DOCKER_IMAGE .
           docker login -u adityaxsolanki -p $DOCKER_PASSWORD
           docker push $DOCKER_IMAGE
         '''
