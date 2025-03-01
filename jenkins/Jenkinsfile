@@ -1,23 +1,43 @@
 pipeline {
-    agent any
+  agent any
 
-    stages {
-        stage('Build') {
-            steps {
-                sh 'docker build -t adityaxsolanki/aws-crime-syndicate:v1 -f docker/Dockerfile .'
-            }
-        }
-        stage('Login to Docker Hub') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh 'docker login -u $DOCKER_USER -p $DOCKER_PASS'
-                }
-            }
-        }
-        stage('Push') {
-            steps {
-                sh 'docker push adityaxsolanki/aws-crime-syndicate:v1'
-            }
-        }
+  stages {
+    stage('Clone Repository') {
+      steps {
+        echo "Cloning GitHub Repo 🔥"
+        git branch: 'main', url: 'https://github.com/adityaxsolanki/aws-multi-tier-architecture.git'
+      }
     }
+
+    stage('Docker Build & Push') {
+      steps {
+        echo "Building Docker Image 🚀"
+        sh '''
+          docker build -t adityaxsolanki/aws-crime-syndicate:v1 .
+          docker login -u adityaxsolanki -p $DOCKER_PASSWORD
+          docker push adityaxsolanki/aws-crime-syndicate:v1
+        '''
+      }
+    }
+
+    stage('Deploy to Same Instance') {
+      steps {
+        echo "Deploying App on Same EC2 🔥"
+        sh '''
+          docker stop app || true
+          docker rm app || true
+          docker run -d --name app -p 80:80 adityaxsolanki/aws-crime-syndicate:v1
+        '''
+      }
+    }
+  }
+
+  post {
+    success {
+      echo "🚨 Pipeline Successful"
+    }
+    failure {
+      echo "💀 Pipeline Failed"
+    }
+  }
 }
