@@ -13,16 +13,18 @@ pipeline {
       }
     }
 
-    stage('Docker Build & Push') {
-      steps {
+stage('Docker Build & Push') {
+    steps {
         echo "Building Docker Image 🚀"
-        sh '''
-          docker build -t $DOCKER_IMAGE .
-          docker login -u adityaxsolanki -p $DOCKER_PASSWORD
-          docker push $DOCKER_IMAGE
-        '''
-      }
+        withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+            sh '''
+              docker build -t $DOCKER_IMAGE .
+              echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+              docker push $DOCKER_IMAGE
+            '''
+        }
     }
+}
 
     stage('Deploy to Same Instance') {
       steps {
