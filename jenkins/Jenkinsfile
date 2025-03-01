@@ -8,7 +8,7 @@ pipeline {
         }
         stage('Push') {
             steps {
-                sh 'docker push adityaxsolanki/aws-crime-syndicate:v1 docker/Dockerfile .'
+                sh 'docker push adityaxsolanki/aws-crime-syndicate:v1
             }
         }
     }
