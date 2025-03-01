@@ -4,7 +4,14 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh 'docker build -t adityaxsolanki/aws-crime-syndicate:v1 -f docker/Dockerfile .' // ✅ Corrected path
+                sh 'docker build -t adityaxsolanki/aws-crime-syndicate:v1 -f docker/Dockerfile .'
+            }
+        }
+        stage('Login to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh 'docker login -u $DOCKER_USER -p $DOCKER_PASS'
+                }
             }
         }
         stage('Push') {
