@@ -1,6 +1,10 @@
 pipeline {
   agent any
 
+  environment {
+    DOCKER_IMAGE = "adityaxsolanki/aws-crime-syndicate:v1"  // Dynamic tag based on build number
+  }
+
   stages {
     stage('Clone Repository') {
       steps {
@@ -13,9 +17,9 @@ pipeline {
       steps {
         echo "Building Docker Image 🚀"
         sh '''
-          docker build -t adityaxsolanki/aws-crime-syndicate:v1 .
+          docker build -t $DOCKER_IMAGE -f aws-multi-tier-architecture/Dockerfile .
           docker login -u adityaxsolanki -p $DOCKER_PASSWORD
-          docker push adityaxsolanki/aws-crime-syndicate:v1
+          docker push $DOCKER_IMAGE
         '''
       }
     }
@@ -26,7 +30,7 @@ pipeline {
         sh '''
           docker stop app || true
           docker rm app || true
-          docker run -d --name app -p 80:80 adityaxsolanki/aws-crime-syndicate:v1
+          docker run -d --name app -p 80:80 $DOCKER_IMAGE
         '''
       }
     }
