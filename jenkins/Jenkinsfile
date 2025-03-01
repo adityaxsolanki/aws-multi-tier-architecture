@@ -1,14 +1,15 @@
 pipeline {
     agent any
+
     stages {
         stage('Build') {
             steps {
-                sh 'docker build -t adityaxsolanki/aws-crime-syndicate:v1 -f docker/Dockerfile .'
+                sh 'docker build -t adityaxsolanki/aws-crime-syndicate:v1 -f ..docker/Dockerfile .'
             }
         }
         stage('Push') {
             steps {
-                sh 'docker push adityaxsolanki/aws-crime-syndicate:v1
+                sh 'docker push adityaxsolanki/aws-crime-syndicate:v1'
             }
         }
     }
