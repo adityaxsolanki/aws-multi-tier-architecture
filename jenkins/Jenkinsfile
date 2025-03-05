@@ -2,7 +2,7 @@ pipeline {
   agent any
 
   environment {
-    DOCKER_IMAGE = "adityaxsolanki/aws-crime-syndicate:v1"  // Dynamic tag based on build number
+    DOCKER_IMAGE = "adityaxsolanki/aws-crime-syndicate:v2"
   }
 
   stages {
@@ -13,18 +13,18 @@ pipeline {
       }
     }
 
-stage('Docker Build & Push') {
-    steps {
+    stage('Docker Build & Push') {
+      steps {
         echo "Building Docker Image 🚀"
         withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-            sh '''
-              docker build -t $DOCKER_IMAGE .
-              echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-              docker push $DOCKER_IMAGE
-            '''
+          sh '''
+            docker build -t $DOCKER_IMAGE .
+            echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+            docker push $DOCKER_IMAGE
+          '''
         }
+      }
     }
-}
 
     stage('Deploy to Same Instance') {
       steps {
@@ -32,7 +32,8 @@ stage('Docker Build & Push') {
         sh '''
           docker stop app || true
           docker rm app || true
-          docker run -d --name app -p 80:80 $DOCKER_IMAGE
+          docker rmi $(docker images -f "dangling=true" -q) || true
+          docker run -d --name app -p 7070:80 $DOCKER_IMAGE
         '''
       }
     }
@@ -40,7 +41,7 @@ stage('Docker Build & Push') {
 
   post {
     success {
-      echo "🚨 Pipeline Successful"
+      echo "🚀 Pipeline Successful"
     }
     failure {
       echo "💀 Pipeline Failed"
